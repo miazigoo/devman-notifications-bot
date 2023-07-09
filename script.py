@@ -57,6 +57,7 @@ def main():
     }
     response_reviews = requests.get(url_user_reviews, headers=headers)
     start_timestamp = response_reviews.json()["results"][0]["timestamp"]
+    send_message('Bot is *RUN*ning      *=/(^_^)-|*')
     while True:
         logger.info('В активном поиске')
         try:
