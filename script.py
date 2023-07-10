@@ -1,6 +1,8 @@
 import random
 import sys
 import time
+from datetime import datetime
+
 import telepot
 import requests
 from environs import Env
@@ -49,8 +51,8 @@ def main():
     headers = {
         'Authorization': f'Token {devman_token}'
     }
-    response_reviews = requests.get(url_user_reviews, headers=headers)
-    start_timestamp = response_reviews.json()["results"][0]["timestamp"]
+    dt = datetime.now()
+    start_timestamp = datetime.timestamp(dt)
     telegram_bot.sendMessage(admin_id, 'Bot is *RUN*ning      *=/(^_^)-|*', parse_mode="Markdown")
     while True:
         logger.info('В активном поиске')
