@@ -1,5 +1,4 @@
 import random
-import sys
 import time
 from datetime import datetime
 from textwrap import dedent
@@ -11,7 +10,7 @@ import logging
 
 
 from requests import exceptions
-
+from urllib3.exceptions import MaxRetryError
 
 logger = logging.getLogger(__name__)
 
@@ -25,11 +24,8 @@ def retry(exc_type=exceptions.ConnectionError):
                 try:
                     return function(*args, **kwargs)
                 except exc_type as e:
-                    print(
-                        "Сбой подключения. Произвожу попытку нового подключения.",
-                        e,
-                        file=sys.stderr,
-                    )
+                    text = f'Сбой подключения. Произвожу попытку нового подключения. {e}'
+                    logging.info(dedent(text))
                     logging.debug(e)
                     time.sleep(cooloff)
                     cooloff = random.choice(cooloff_random)
@@ -53,14 +49,18 @@ def main():
     }
     dt = datetime.now()
     start_timestamp = datetime.timestamp(dt)
-    telegram_bot.sendMessage(admin_id, 'Bot is *RUN*ning      *=/(^_^)-|*', parse_mode="Markdown")
+    try:
+        telegram_bot.sendMessage(admin_id, 'Bot is *RUN*ning      *=/(^_^)-|*', parse_mode="Markdown")
+    except MaxRetryError:
+        pass
     while True:
         logger.info('В активном поиске')
         try:
             params = {
                 "timestamp": start_timestamp
             }
-            response = requests.get(url_long_pooling, headers=headers, params=params)
+            session = requests.session()
+            response = session.get(url_long_pooling, headers=headers, params=params)
             new_attempts = response.json()
             if new_attempts["status"] == "found":
                 for attempts in new_attempts["new_attempts"]:
@@ -72,7 +72,10 @@ def main():
                            *{verification_passed}* 
                            *Урок*: {attempts['lesson_title']}
                            *Ссылка*: {attempts['lesson_url']}"""
-                    telegram_bot.sendMessage(admin_id, dedent(text), parse_mode="Markdown")
+                    try:
+                        telegram_bot.sendMessage(admin_id, dedent(text), parse_mode="Markdown")
+                    except MaxRetryError:
+                        pass
                 start_timestamp = new_attempts["last_attempt_timestamp"]
         except exceptions.ReadTimeout as err:
             pass
