@@ -2,6 +2,7 @@ import random
 import sys
 import time
 from datetime import datetime
+from textwrap import dedent
 
 import telepot
 import requests
@@ -67,11 +68,11 @@ def main():
                         verification_passed = 'Работа не принята, доработайте!'
                     else:
                         verification_passed = 'Работа принята!'
-                    text = f"Преподаватель *проверил* работу:\n" \
-                           f"*{verification_passed}*\n " \
-                           f"*Урок*: {attempts['lesson_title']}\n" \
-                           f"*Ссылка*: {attempts['lesson_url']}"
-                    telegram_bot.sendMessage(admin_id, text, parse_mode="Markdown")
+                    text = f"""Преподаватель *проверил* работу:
+                           *{verification_passed}* 
+                           *Урок*: {attempts['lesson_title']}
+                           *Ссылка*: {attempts['lesson_url']}"""
+                    telegram_bot.sendMessage(admin_id, dedent(text), parse_mode="Markdown")
                 start_timestamp = new_attempts["last_attempt_timestamp"]
         except exceptions.ReadTimeout as err:
             pass
