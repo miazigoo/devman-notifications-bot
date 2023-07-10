@@ -46,7 +46,6 @@ def main():
     admin_id = env.str('TELEGRAM_ADMIN_ID')
     telegram_token = env.str('TELEGRAM_BOT_API_KEY')
     telegram_bot = telepot.Bot(telegram_token)
-    url_user_reviews = 'https://dvmn.org/api/user_reviews/'
     url_long_pooling = 'https://dvmn.org/api/long_polling/'
     headers = {
         'Authorization': f'Token {devman_token}'
@@ -61,9 +60,9 @@ def main():
                 "timestamp": start_timestamp
             }
             response = requests.get(url_long_pooling, headers=headers, params=params)
-            answer = response.json()
-            if answer["status"] == "found":
-                for attempts in answer["new_attempts"]:
+            new_attempts = response.json()
+            if new_attempts["status"] == "found":
+                for attempts in new_attempts["new_attempts"]:
                     if attempts["is_negative"]:
                         verification_passed = 'Работа не принята, доработайте!'
                     else:
@@ -73,7 +72,7 @@ def main():
                            f"*Урок*: {attempts['lesson_title']}\n" \
                            f"*Ссылка*: {attempts['lesson_url']}"
                     telegram_bot.sendMessage(admin_id, text, parse_mode="Markdown")
-                start_timestamp = answer["last_attempt_timestamp"]
+                start_timestamp = new_attempts["last_attempt_timestamp"]
         except exceptions.ReadTimeout as err:
             pass
 
