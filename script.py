@@ -43,10 +43,10 @@ def main():
     devman_token = env.str('DEVMAN_TOKEN')
     admin_id = env.str('TELEGRAM_ADMIN_ID')
     telegram_token = env.str('TELEGRAM_BOT_API_KEY')
-    telegramBot = telepot.Bot(telegram_token)
+    telegram_bot = telepot.Bot(telegram_token)
 
     def send_message(text):
-        telegramBot.sendMessage(admin_id, text, parse_mode="Markdown")
+        telegram_bot.sendMessage(admin_id, text, parse_mode="Markdown")
 
     url_user_reviews = 'https://dvmn.org/api/user_reviews/'
     url_long_pooling = 'https://dvmn.org/api/long_polling/'
