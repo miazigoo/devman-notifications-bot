@@ -1,5 +1,6 @@
 import random
 import time
+from contextlib import suppress
 from datetime import datetime
 from textwrap import dedent
 
@@ -7,7 +8,6 @@ import telepot
 import requests
 from environs import Env
 import logging
-
 
 from requests import exceptions
 from urllib3.exceptions import MaxRetryError
@@ -49,36 +49,40 @@ def main():
     }
     dt = datetime.now()
     start_timestamp = datetime.timestamp(dt)
-    try:
+
+    with suppress(MaxRetryError):
         telegram_bot.sendMessage(admin_id, 'Bot is *RUN*ning      *=/(^_^)-|*', parse_mode="Markdown")
-    except MaxRetryError:
-        pass
+
     while True:
         logger.info('В активном поиске')
-        try:
+        with suppress(exceptions.ReadTimeout):
             params = {
                 "timestamp": start_timestamp
             }
             session = requests.session()
-            response = session.get(url_long_pooling, headers=headers, params=params)
-            new_attempts = response.json()
-            if new_attempts["status"] == "found":
-                for attempts in new_attempts["new_attempts"]:
-                    if attempts["is_negative"]:
-                        verification_passed = 'Работа не принята, доработайте!'
-                    else:
-                        verification_passed = 'Работа принята!'
-                    text = f"""Преподаватель *проверил* работу:
-                           *{verification_passed}* 
-                           *Урок*: {attempts['lesson_title']}
-                           *Ссылка*: {attempts['lesson_url']}"""
-                    try:
-                        telegram_bot.sendMessage(admin_id, dedent(text), parse_mode="Markdown")
-                    except MaxRetryError:
-                        pass
-                start_timestamp = new_attempts["last_attempt_timestamp"]
-        except exceptions.ReadTimeout as err:
-            pass
+            try:
+                response = session.get(url_long_pooling, headers=headers, params=params)
+                response.raise_for_status()
+                new_attempts = response.json()
+                if 'error' in new_attempts:
+                    raise requests.exceptions.HTTPError(new_attempts['error'])
+                if new_attempts["status"] == "found":
+                    for attempts in new_attempts["new_attempts"]:
+                        if attempts["is_negative"]:
+                            verification_passed = 'Работа не принята, доработайте!'
+                        else:
+                            verification_passed = 'Работа принята!'
+                        text = f"""Преподаватель *проверил* работу:
+                               *{verification_passed}* 
+                               *Урок*: {attempts['lesson_title']}
+                               *Ссылка*: {attempts['lesson_url']}"""
+                        with suppress(MaxRetryError):
+                            telegram_bot.sendMessage(admin_id, dedent(text), parse_mode="Markdown")
+
+                    start_timestamp = new_attempts["last_attempt_timestamp"]
+            except exceptions.HTTPError as err:
+                logger.debug(err)
+                continue
 
 
 if __name__ == '__main__':
