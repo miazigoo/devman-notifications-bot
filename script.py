@@ -64,8 +64,6 @@ def main():
                 response = session.get(url_long_pooling, headers=headers, params=params)
                 response.raise_for_status()
                 new_attempts = response.json()
-                if 'error' in new_attempts:
-                    raise requests.exceptions.HTTPError(new_attempts['error'])
                 if new_attempts["status"] == "found":
                     for attempts in new_attempts["new_attempts"]:
                         if attempts["is_negative"]:
