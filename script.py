@@ -48,21 +48,13 @@ def retry(exc_type=exceptions.ConnectionError):
     return real_decorator
 
 
-@retry()
-def main():
-    env = Env()
-    env.read_env()
-    devman_token = env.str('DEVMAN_TOKEN')
-    admin_id = env.str('TELEGRAM_ADMIN_ID')
-    telegram_token = env.str('TELEGRAM_BOT_API_KEY')
-    telegram_bot = telepot.Bot(telegram_token)
+def logic_bot(telegram_bot, admin_id, devman_token):
     url_long_pooling = 'https://dvmn.org/api/long_polling/'
     headers = {
         'Authorization': f'Token {devman_token}'
     }
     dt = datetime.now()
     start_timestamp = datetime.timestamp(dt)
-    logger.addHandler(TelegramLogsHandler(telegram_bot, admin_id))
 
     with suppress(MaxRetryError):
         telegram_bot.sendMessage(admin_id, 'Bot is *RUN*ning      *=/(^_^)-|*', parse_mode="Markdown")
@@ -95,6 +87,22 @@ def main():
             except exceptions.HTTPError as err:
                 logger.debug(err)
                 continue
+
+
+@retry()
+def main():
+    env = Env()
+    env.read_env()
+    devman_token = env.str('DEVMAN_TOKEN')
+    admin_id = env.str('TELEGRAM_ADMIN_ID')
+    telegram_token = env.str('TELEGRAM_BOT_API_KEY')
+    telegram_bot = telepot.Bot(telegram_token)
+    while True:
+        try:
+            logic_bot(telegram_bot, admin_id, devman_token)
+        except Exception as err:
+            logger.addHandler(TelegramLogsHandler(telegram_bot, admin_id))
+            logger.exception(err)
 
 
 if __name__ == '__main__':
