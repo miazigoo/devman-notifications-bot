@@ -12,6 +12,19 @@ import logging
 from requests import exceptions
 from urllib3.exceptions import MaxRetryError
 
+
+class TelegramLogsHandler(logging.Handler):
+
+    def __init__(self, tg_bot, chat_id):
+        super().__init__()
+        self.chat_id = chat_id
+        self.tg_bot = tg_bot
+
+    def emit(self, record):
+        log_entry = self.format(record)
+        self.tg_bot.sendMessage(chat_id=self.chat_id, text=log_entry)
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -49,6 +62,7 @@ def main():
     }
     dt = datetime.now()
     start_timestamp = datetime.timestamp(dt)
+    logger.addHandler(TelegramLogsHandler(telegram_bot, admin_id))
 
     with suppress(MaxRetryError):
         telegram_bot.sendMessage(admin_id, 'Bot is *RUN*ning      *=/(^_^)-|*', parse_mode="Markdown")
