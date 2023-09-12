@@ -48,7 +48,7 @@ def retry(exc_type=exceptions.ConnectionError):
     return real_decorator
 
 
-def logic_bot(telegram_bot, admin_id, devman_token):
+def checking_works(telegram_bot, admin_id, devman_token):
     url_long_pooling = 'https://dvmn.org/api/long_polling/'
     headers = {
         'Authorization': f'Token {devman_token}'
@@ -102,7 +102,7 @@ def main():
     telegram_bot = telepot.Bot(telegram_token)
     while True:
         try:
-            logic_bot(telegram_bot, admin_id, devman_token)
+            checking_works(telegram_bot, admin_id, devman_token)
         except Exception as err:
             logger.addHandler(TelegramLogsHandler(telegram_bot, admin_id))
             logger.exception(err)
