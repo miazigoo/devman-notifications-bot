@@ -91,6 +91,9 @@ def logic_bot(telegram_bot, admin_id, devman_token):
 
 @retry()
 def main():
+    logging.basicConfig(
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
+    )
     env = Env()
     env.read_env()
     devman_token = env.str('DEVMAN_TOKEN')
@@ -106,7 +109,4 @@ def main():
 
 
 if __name__ == '__main__':
-    logging.basicConfig(
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
-    )
     main()
