@@ -65,28 +65,28 @@ def checking_works(telegram_bot, admin_id, devman_token):
             params = {
                 "timestamp": start_timestamp
             }
-            session = requests.session()
-            try:
-                response = session.get(url_long_pooling, headers=headers, params=params)
-                response.raise_for_status()
-                new_attempts = response.json()
-                if new_attempts["status"] == "found":
-                    for attempts in new_attempts["new_attempts"]:
-                        if attempts["is_negative"]:
-                            verification_passed = 'Работа не принята, доработайте!'
-                        else:
-                            verification_passed = 'Работа принята!'
-                        text = f"""Преподаватель *проверил* работу:
-                               *{verification_passed}* 
-                               *Урок*: {attempts['lesson_title']}
-                               *Ссылка*: {attempts['lesson_url']}"""
-                        with suppress(MaxRetryError):
-                            telegram_bot.sendMessage(admin_id, dedent(text), parse_mode="Markdown")
+        session = requests.session()
+        try:
+            response = session.get(url_long_pooling, headers=headers, params=params)
+            response.raise_for_status()
+            new_attempts = response.json()
+            if new_attempts["status"] == "found":
+                for attempts in new_attempts["new_attempts"]:
+                    if attempts["is_negative"]:
+                        verification_passed = 'Работа не принята, доработайте!'
+                    else:
+                        verification_passed = 'Работа принята!'
+                    text = f"""Преподаватель *проверил* работу:
+                           *{verification_passed}* 
+                           *Урок*: {attempts['lesson_title']}
+                           *Ссылка*: {attempts['lesson_url']}"""
+                    with suppress(MaxRetryError):
+                        telegram_bot.sendMessage(admin_id, dedent(text), parse_mode="Markdown")
 
-                    start_timestamp = new_attempts["last_attempt_timestamp"]
-            except exceptions.HTTPError as err:
-                logger.debug(err)
-                continue
+                start_timestamp = new_attempts["last_attempt_timestamp"]
+        except exceptions.HTTPError as err:
+            logger.debug(err)
+            continue
 
 
 @retry()
