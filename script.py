@@ -28,26 +28,6 @@ class TelegramLogsHandler(logging.Handler):
 logger = logging.getLogger(__name__)
 
 
-def retry(exc_type=exceptions.ConnectionError):
-    def real_decorator(function):
-        def wrapper(*args, **kwargs):
-            cooloff = 5
-            cooloff_random = [5, 10, 15, 20, 30]
-            while True:
-                try:
-                    return function(*args, **kwargs)
-                except exc_type as e:
-                    text = f'Сбой подключения. Произвожу попытку нового подключения. {e}'
-                    logging.info(dedent(text))
-                    logging.debug(e)
-                    time.sleep(cooloff)
-                    cooloff = random.choice(cooloff_random)
-
-        return wrapper
-
-    return real_decorator
-
-
 def checking_works(telegram_bot, admin_id, devman_token):
     url_long_pooling = 'https://dvmn.org/api/long_polling/'
     headers = {
@@ -89,7 +69,6 @@ def checking_works(telegram_bot, admin_id, devman_token):
             continue
 
 
-@retry()
 def main():
     logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
