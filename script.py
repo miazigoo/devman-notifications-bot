@@ -36,16 +36,13 @@ def checking_works(telegram_bot, admin_id, devman_token):
     dt = datetime.now()
     start_timestamp = datetime.timestamp(dt)
 
-    with suppress(MaxRetryError):
-        telegram_bot.sendMessage(admin_id, 'Bot is *RUN*ning      *=/(^_^)-|*', parse_mode="Markdown")
-
     while True:
         logger.info('В активном поиске')
         with suppress(exceptions.ReadTimeout):
-            params = {
-                "timestamp": start_timestamp
-            }
-        session = requests.session()
+            session = requests.session()
+        params = {
+            "timestamp": start_timestamp
+        }
         try:
             response = session.get(url_long_pooling, headers=headers, params=params)
             response.raise_for_status()
