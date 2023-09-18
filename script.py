@@ -38,13 +38,13 @@ def checking_works(telegram_bot, admin_id, devman_token):
 
     while True:
         logger.info('В активном поиске')
-        with suppress(exceptions.ReadTimeout):
-            session = requests.session()
+        session = requests.session()
         params = {
             "timestamp": start_timestamp
         }
         try:
-            response = session.get(url_long_pooling, headers=headers, params=params)
+            with suppress(exceptions.ReadTimeout):
+                response = session.get(url_long_pooling, headers=headers, params=params)
             response.raise_for_status()
             new_attempts = response.json()
             if new_attempts["status"] == "found":
