@@ -1,5 +1,3 @@
-import random
-import time
 from contextlib import suppress
 from datetime import datetime
 from textwrap import dedent
@@ -76,6 +74,7 @@ def main():
     admin_id = env.str('TELEGRAM_ADMIN_ID')
     telegram_token = env.str('TELEGRAM_BOT_API_KEY')
     telegram_bot = telepot.Bot(telegram_token)
+    telegram_bot.sendMessage(admin_id, "Запуск скрипта")
     while True:
         try:
             checking_works(telegram_bot, admin_id, devman_token)
