@@ -23,6 +23,44 @@ pip install -r requirements.txt
 python script.py
 ```
 
+
+## Deploy 
+#### Создать файл  /etc/systemd/system/bot.service 
+```service
+ [Service]
+ ExecStart=/opt/devman-notifications-bot/venv/bin/python3 /opt/devman-notifications-bot/script.py
+ Restart=always
+
+ [Install]
+ WantedBy=multi-user.target
+```
+Название сервиса `bot`
+
+Вы можете запустить эти команды:
+```bash
+systemctl enable bot
+systemctl start bot
+systemctl stop bot
+systemctl restart bot
+```
+
+После изменения конфигурации используйте:
+```bash
+systemctl daemon-reload
+```
+
+## Создать контейнер
+
+```bash
+docker build --tag bot .
+```
+## Запустить контейнер
+
+```bash
+docker run -d bot
+```
+
+
 ### Цель проекта
 
 Код написан в образовательных целях на онлайн-курсе для веб-разработчиков [dvmn.org](https://dvmn.org/).
