@@ -49,16 +49,22 @@ systemctl restart bot
 systemctl daemon-reload
 ```
 
-## Создать контейнер
+## Создать и запустить контейнер
 
 ```bash
 docker build --tag bot .
 ```
-## Запустить контейнер
 
 ```bash
-docker run -d bot
+docker run -d --rm -e DEVMAN_TOKEN=ваш_токен -e TELEGRAM_BOT_API_KEY=токет_от_телеграм_бота -e TELEGRAM_ADMIN_ID=ваш_телеграм_айди bot 
 ```
+
+#### Как проверить:
+На ваш `TELEGRAM_ADMIN_ID` придет сообщение о запуске скрипта.
+
+Использовав команду: `docker ps` вы увидите активный образ `bot`.
+
+
 
 
 ### Цель проекта
