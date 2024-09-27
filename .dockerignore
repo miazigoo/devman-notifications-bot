@@ -1,6 +1,5 @@
 # .dockerignore
 .git/
-requirements.txt
 *.md
 
 .env

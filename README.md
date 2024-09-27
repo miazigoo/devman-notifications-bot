@@ -54,9 +54,13 @@ systemctl daemon-reload
 ```bash
 docker build --tag bot .
 ```
-
+### Run
 ```bash
 docker run -d --rm -e DEVMAN_TOKEN=ваш_токен -e TELEGRAM_BOT_API_KEY=токет_от_телеграм_бота -e TELEGRAM_ADMIN_ID=ваш_телеграм_айди bot 
+```
+##### Or if there is data in the .env file
+```bash
+docker run -d --env-file .env bot
 ```
 
 #### Как проверить:
